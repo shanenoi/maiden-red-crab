@@ -1,0 +1,5 @@
+apps:
+  vim.md: google-chrome-stable --app=https://vim.md/
+  messenger: google-chrome-stable --app="https://messenger.com"
+  keep_g: google-chrome-stable --app="https://keep.google.com/"
+  zalo: google-chrome-stable --app="https://chat.zalo.me"
