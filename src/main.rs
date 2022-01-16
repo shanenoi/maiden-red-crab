@@ -1,15 +1,16 @@
 use std::{
     collections::BTreeMap,
-    fs::File,
+    fs::{ File, Permissions, set_permissions },
     io::Write,
+    os::unix::fs::PermissionsExt,
     path::{ Path, PathBuf },
-    os::unix::fs::PermissionsExt
 };
 
 type AppsConfig = BTreeMap<String, BTreeMap<String, String>>;
 
-static DEFAULT_CONFIG: &'static str = "default.yml";
 static BASE_PATH: &'static str = "/tmp";
+static DEFAULT_CONFIG: &'static str = "default.yml";
+static DEFAULT_FILEMOD: u32 = 0o755;
 static ERROR_CONFIG: &'static str = "[ERR] Load the config file: ";
 static ERROR_CONFIG_FILE: &'static str = "[ERR] config file: ";
 
@@ -35,10 +36,16 @@ impl App {
         Path::new(BASE_PATH).join(&self.name)
     }
 
-    pub fn save(&self) {
+    fn update_filemode(&self) -> &App {
+        set_permissions(self.abs_path(), Permissions::from_mode(DEFAULT_FILEMOD)).unwrap();
+        self 
+    }
+
+    pub fn save(&self) -> &App {
         let mut file = File::create(self.abs_path()).unwrap();
         file.write_all(self.content.as_bytes()).unwrap();
         file.sync_all().unwrap();
+        self
     }
 }
 
@@ -55,7 +62,7 @@ fn main() -> std::io::Result<()> {
                         Some(value) => {
                             let apps = App::new(value);
                             for app in apps {
-                                app.save();
+                                app.save().update_filemode();
                             }
                         }
                         None => {}
