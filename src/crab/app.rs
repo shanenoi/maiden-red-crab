@@ -20,15 +20,15 @@ pub struct App {
 }
 
 impl App {
-    pub fn new(config: &BTreeMap<String, String>) -> Vec<Box<App>> {
+    pub fn new(config: &BTreeMap<String, String>) -> Vec<App> {
         let mut result = Vec::new();
         for (key, value) in &*config {
-            result.push(Box::new(App {
-                name: key.to_string(),
-                content: value.to_string(),
-            }));
+            result.push(
+                App { name: key.to_string(),
+                      content: value.to_string(), }
+            );
         }
-        return result;
+        result
     }
 
     pub fn abs_path(&self) -> PathBuf {
