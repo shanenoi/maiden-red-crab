@@ -1,5 +1,6 @@
 mod crab;
 use crab::app::{ App, AppsConfig };
+use crab::config::{ Config, Init };
 use std::fs::File;
 
 static DEFAULT_CONFIG: &str = "default.yml";
@@ -8,6 +9,8 @@ static ERROR_CONFIG_FILE: &str = "[ERR] config file: ";
 
 fn main() -> std::io::Result<()> {
     let file_config = File::open(DEFAULT_CONFIG);
+    let config = Config::new();
+    println!("{:?}", config.init());
 
     match file_config {
         Ok(config) => {
