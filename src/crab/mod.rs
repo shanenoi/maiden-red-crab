@@ -1,12 +1,14 @@
 pub mod app;
 pub mod config;
 
-// static DEFAULT_CONFIG: &'static str = "default.yml";
 static APP_CONFIG_DIR: &str = "apps.yml";
 static CRAB_CONFIG: &str = "apps.yml";
 static BASE_PATH: &str = "/tmp";
 static DEFAULT_FILEMOD: u32 = 0o755;
+
+#[allow(dead_code)]
 static ERROR_CONFIG: &str = "[ERR] Load the config file: ";
+
 static ERROR_CONFIG_FILE: &str = "[ERR] config file: ";
 static ERROR_CREATE_APP_CONFIG_DIR: &str = "[ERR] Can't create app config dir";
 static ERROR_FIND_CONFIG_DIR: &str = "[ERR] Can't find config dir";

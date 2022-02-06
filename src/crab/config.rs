@@ -16,7 +16,10 @@ use std::io::Write;
 use std::path::{ PathBuf };
 
 pub struct Config {
+    #[allow(dead_code)]
     apps_path:           &'static str,
+
+    #[allow(dead_code)]
     executable_dir_path: &'static str,
 }
 

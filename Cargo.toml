@@ -6,4 +6,4 @@ edition = "2021"
 [dependencies]
 serde_yaml = "0.8.21"
 serde = "1.0.90"
-dirs = "0.1.1"
+dirs = "4.0.0"
