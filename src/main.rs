@@ -9,8 +9,9 @@ static ERROR_CONFIG_FILE: &str = "[ERR] config file: ";
 
 fn main() -> std::io::Result<()> {
     let file_config = File::open(DEFAULT_CONFIG);
-    let config = Config::new();
-    println!("{:?}", config.init());
+    let config_ = Config::new();
+    println!("{:?}", config_.init());
+    config_.create_apps_config();
 
     match file_config {
         Ok(config) => {

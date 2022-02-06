@@ -1,12 +1,18 @@
 use crate::crab::{
-    BASE_PATH,
+    APP_CONFIG_DIR,
+    APP_CONFIG_TEMPLATE,
+    CRAB_CONFIG,
+    CRAB_CONFIG_TEMPLATE,
+    ERROR_CONFIG_FILE,
     ERROR_CREATE_APP_CONFIG_DIR,
     ERROR_FIND_CONFIG_DIR,
     PKG_NAME,
     app::AppsConfig,
 };
+use serde::de::Error;
 use dirs;
-use std::fs;
+use std::{fs, fs::File };
+use std::io::Write;
 use std::path::{ PathBuf };
 
 pub struct Config {
@@ -16,10 +22,10 @@ pub struct Config {
 
 pub trait Init {
     fn init(&self) -> PathBuf;
-    fn create_apps_config(&self);
-    fn load_apps_config(&self);
-    fn create_excutable_dir(&self);
-    fn load_excutable_dir(&self);
+    fn create_apps_config(&self) -> PathBuf;
+    fn load_apps_config(&self) -> Result<AppsConfig, serde_yaml::Error>;
+    fn create_crab_config(&self) -> PathBuf;
+    fn load_crab_config(&self);
 }
 
 pub trait Export {
@@ -35,14 +41,23 @@ impl Config {
             executable_dir_path: "",
         })
     }
+
+    fn init_file(filepath: &PathBuf, content: &[u8]) {
+        if !filepath.exists() {
+            let mut file = File::create(filepath).unwrap();
+            file.write_all(content).unwrap();
+            file.sync_all().unwrap();
+        }
+    }
 }
 
 impl Init for Config {
     fn init(&self) -> PathBuf {
         let default_config_dir: PathBuf;
+
         if let Some(config_dir) = dirs::config_dir() {
-            default_config_dir = config_dir;
-            if let Err(_) = fs::create_dir_all(default_config_dir.join(PKG_NAME)) {
+            default_config_dir = config_dir.join(PKG_NAME);
+            if let Err(_) = fs::create_dir_all(&default_config_dir) {
                 panic!("{}", ERROR_CREATE_APP_CONFIG_DIR);
             }
         } else {
@@ -52,17 +67,26 @@ impl Init for Config {
         default_config_dir
     }
 
-    // let test_file = "/tmp/test.txt";
-    // if !Path::new(test_file).exists() {
-    //     let mut file = File::create(test_file).unwrap();
-    //     file.write_all("this the strigng".as_bytes()).unwrap();
-    //     file.sync_all().unwrap();
-    // }
-    fn create_apps_config(&self) {}
+    fn create_apps_config(&self) -> PathBuf {
+        let config = self.init().join(APP_CONFIG_DIR);
+        Config::init_file(&config, APP_CONFIG_TEMPLATE.as_bytes());
+        config
+    }
 
-    fn load_apps_config(&self) {}
+    fn create_crab_config(&self) -> PathBuf {
+        let config = self.init().join(CRAB_CONFIG);
+        Config::init_file(&config, CRAB_CONFIG_TEMPLATE.as_bytes());
+        config
+    }
 
-    fn create_excutable_dir(&self) {}
+    fn load_apps_config(&self) -> Result<AppsConfig, serde_yaml::Error> {
+        let file_config = File::open(self.create_apps_config());
+        if let Ok(file) = file_config {
+            serde_yaml::from_reader(file)
+        } else {
+            Err(serde_yaml::Error::custom(ERROR_CONFIG_FILE))
+        }
+    }
 
-    fn load_excutable_dir(&self) {}
+    fn load_crab_config(&self) {}
 }

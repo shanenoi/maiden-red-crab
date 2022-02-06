@@ -84,6 +84,7 @@ name = "maiden-red-crab"
 version = "0.1.0"
 dependencies = [
  "dirs",
+ "serde",
  "serde_yaml",
 ]
 
