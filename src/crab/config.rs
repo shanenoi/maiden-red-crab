@@ -9,11 +9,12 @@ use crate::crab::{
     PKG_NAME,
     app::AppsConfig,
 };
-use serde::de::Error;
 use dirs;
-use std::{fs, fs::File };
+use regex::Regex;
+use serde::de::Error;
 use std::io::Write;
 use std::path::{ PathBuf };
+use std::{fs, fs::File };
 
 pub struct Config {
     #[allow(dead_code)]
@@ -77,8 +78,22 @@ impl Init for Config {
     }
 
     fn create_crab_config(&self) -> PathBuf {
-        let config = self.init().join(CRAB_CONFIG);
-        Config::init_file(&config, CRAB_CONFIG_TEMPLATE.as_bytes());
+        let init_ = self.init();
+        let config = init_.join(CRAB_CONFIG);
+
+        let crab_config = Regex::new(r"(<CRAB_CONFIG>)").unwrap();
+        let home = Regex::new(r"(<HOME>)").unwrap();
+        let crab_config_path = (&init_).to_str().unwrap();
+        let home_path = dirs::home_dir().unwrap();
+
+        Config::init_file(
+            &config,
+            home.replace_all(
+                &crab_config.replace_all(CRAB_CONFIG_TEMPLATE, crab_config_path),
+                home_path.to_str().unwrap()
+            ).as_bytes()
+        );
+
         config
     }
 

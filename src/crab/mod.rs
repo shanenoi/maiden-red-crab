@@ -2,7 +2,7 @@ pub mod app;
 pub mod config;
 
 static APP_CONFIG_DIR: &str = "apps.yml";
-static CRAB_CONFIG: &str = "apps.yml";
+static CRAB_CONFIG: &str = "crabs.yml";
 static BASE_PATH: &str = "/tmp";
 static DEFAULT_FILEMOD: u32 = 0o755;
 
@@ -22,6 +22,6 @@ static APP_CONFIG_TEMPLATE: &str = "apps:
 ";
 
 static CRAB_CONFIG_TEMPLATE: &str = "crab:
-  apps_path: <format with home path>
-  executable_dir_path: <format with home path>
+  apps_path: <CRAB_CONFIG>/apps.yml
+  executable_dir_path: <HOME>/.local/bin
 ";
