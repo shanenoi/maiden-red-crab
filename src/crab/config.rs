@@ -9,18 +9,18 @@ use crate::crab::{
     PKG_NAME,
     app::AppsConfig,
 };
+
 use dirs;
 use regex::Regex;
-use serde::de::Error;
-use std::io::Write;
+use serde::{ Deserialize, Serialize, de::Error, };
+use std::io::{ Write };
 use std::path::{ PathBuf };
-use std::{fs, fs::File };
+use std::fmt::Debug;
+use std::{ collections::BTreeMap, fs, fs::File, };
 
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Config {
-    #[allow(dead_code)]
     apps_path:           &'static str,
-
-    #[allow(dead_code)]
     executable_dir_path: &'static str,
 }
 
@@ -29,7 +29,7 @@ pub trait Init {
     fn create_apps_config(&self) -> PathBuf;
     fn load_apps_config(&self) -> Result<AppsConfig, serde_yaml::Error>;
     fn create_crab_config(&self) -> PathBuf;
-    fn load_crab_config(&self);
+    fn load_crab_config(&mut self);
 }
 
 pub trait Export {
@@ -46,11 +46,33 @@ impl Config {
         })
     }
 
+    fn update(&mut self, other: &'static BTreeMap<String, String>) {
+        let app_path = other.get(&"app_path".to_string());
+        let executable_dir_path = other.get(&"executable_dir_path".to_string());
+
+        match app_path {
+            Some(path) => self.apps_path = path.as_str(),
+            None => (),
+        }
+
+        match executable_dir_path {
+            Some(path) => self.executable_dir_path = path.as_str(),
+            None => (),
+        }
+    }
+
     fn init_file(filepath: &PathBuf, content: &[u8]) {
         if !filepath.exists() {
             let mut file = File::create(filepath).unwrap();
             file.write_all(content).unwrap();
             file.sync_all().unwrap();
+        }
+    }
+
+    fn read_yml<T: for<'de> serde::Deserialize<'de>>(&self, filepath: &PathBuf) -> Result<T, serde_yaml::Error> {
+        match File::open(filepath) {
+            Ok(file) => serde_yaml::from_reader(file),
+            Err(err) => Err(serde_yaml::Error::custom(format!("{} {:?}", ERROR_CONFIG_FILE, err))),
         }
     }
 }
@@ -98,13 +120,14 @@ impl Init for Config {
     }
 
     fn load_apps_config(&self) -> Result<AppsConfig, serde_yaml::Error> {
-        let file_config = File::open(self.create_apps_config());
-        if let Ok(file) = file_config {
-            serde_yaml::from_reader(file)
-        } else {
-            Err(serde_yaml::Error::custom(ERROR_CONFIG_FILE))
-        }
+        self.read_yml::<AppsConfig>(&self.create_apps_config())
     }
 
-    fn load_crab_config(&self) {}
+    fn load_crab_config(&mut self) {
+        if let Ok(config) = self.read_yml::<BTreeMap<String, String>>(&self.create_apps_config()) {
+            self.update(&config);
+        } else {
+            panic!("{}", ERROR_CONFIG_FILE);
+        }
+    }
 }

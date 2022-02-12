@@ -6,10 +6,11 @@ static ERROR_CONFIG: &str = "[ERR] Load the config file: ";
 static ERROR_CONFIG_FILE: &str = "[ERR] config file: ";
 
 fn main() -> std::io::Result<()> {
-    let config_ = Config::new();
+    let mut config_ = Config::new();
     println!("{:?}", config_.init());
     config_.create_apps_config();
     config_.create_crab_config();
+    config_.load_crab_config();
 
     if let Ok(config) = config_.load_apps_config() {
         if let Some(value) = config.get("apps") {

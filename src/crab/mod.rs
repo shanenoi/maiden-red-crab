@@ -2,7 +2,7 @@ pub mod app;
 pub mod config;
 
 static APP_CONFIG_DIR: &str = "apps.yml";
-static CRAB_CONFIG: &str = "crabs.yml";
+static CRAB_CONFIG: &str = "crab.yml";
 static BASE_PATH: &str = "/tmp";
 static DEFAULT_FILEMOD: u32 = 0o755;
 
@@ -21,7 +21,7 @@ static APP_CONFIG_TEMPLATE: &str = "apps:
   zalo: google-chrome-stable --app=https://chat.zalo.me
 ";
 
-static CRAB_CONFIG_TEMPLATE: &str = "crab:
-  apps_path: <CRAB_CONFIG>/apps.yml
-  executable_dir_path: <HOME>/.local/bin
+static CRAB_CONFIG_TEMPLATE: &str = "
+apps_path: <CRAB_CONFIG>/apps.yml
+executable_dir_path: <HOME>/.local/bin
 ";
